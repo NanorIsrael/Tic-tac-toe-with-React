@@ -2,26 +2,12 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -35,4 +21,69 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
+
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 10rem;
+  width: 10rem;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
+
+.game {
+  display: flex;
+  flex-direction: row;
+}
+
+.game-info {
+  margin-left: 20px;
+}
+.grid{
+  display: grid;
+  grid-template: auto auto / repeat(3, 0fr);
+  grid-gap: 0;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  padding-top: 2rem;
+}
+.newGame-btn{
+  background-color: #3f0e40;
+  padding: 1rem 2rem;
+  color: #FFFFFF;
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 1rem;
+
+}
+.square img {
+  max-width: 80%;
+}
+@media (max-width: 650px) {
+  .square {
+    height: 6rem;
+    width: 6rem;
+}
 }
