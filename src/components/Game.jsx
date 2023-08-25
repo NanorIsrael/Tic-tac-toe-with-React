@@ -4,9 +4,9 @@ import Board from "./Board";
 function Game(props) {
     const [history, setHistory] = useState(
         [{
-            squares: Array(9).fill(null)
+            squares: Array(9).fill('')
         }]);
-    const [takenSquares, setTakenSquares] = useState({});
+    const [takenSquares, setTakenSquares] = useState([]);
     const [xIsNext, setXIsNext] = useState(true);
     const [stepNumber, setStepNumber] = useState(0);
     const [winner, setWinner] = useState(null);
@@ -17,7 +17,7 @@ function Game(props) {
         takenSquares[index]= owner
         setTakenSquares(takenSquares)
 
-        newSquare[index] = owner === 'x' ? '/x.png' : '/circle.png'
+        newSquare[index] = owner === 'X' ? '/x.png' : '/circle.png'
 
         setHistory(history.concat([{squares: newSquare}]));
         setStepNumber(newHistory.length)
@@ -25,27 +25,44 @@ function Game(props) {
 
     }, [history, takenSquares])
 
-    const computerChoose = useCallback(function (newSquare, newHistory ) {
-
-        let availableSlots = [];
-        newSquare.map((v, i) => {
-            if ((Object.keys(takenSquares).indexOf(String(i))) && !newSquare[i]) {
-                availableSlots.push(i)
+    const minMax = useCallback(function (board, depth, isMax) {
+        const winningPlayer = calculateWinner(board);
+        if (winningPlayer === 'X') return { score: 1 };
+        if (winningPlayer === 'O') return { score: -1 };
+        if (board.every(elem => elem !== '')) return { score: 0 };
+    
+        let bestScore = isMax ? -Infinity : Infinity;
+        let bestMove = -1;
+    
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === '') {
+                board[i] = isMax ? 'X' : 'O';
+                const score = minMax(board, depth + 1, !isMax).score;
+                board[i] = '';
+    
+                if ((isMax && score > bestScore) || (!isMax && score < bestScore)) {
+                    bestScore = score;
+                    bestMove = i;
+                }
             }
-            return i
-        }).filter(v => v !== undefined)
-
-        const randomPosition = Math.ceil(Math.random() * availableSlots.length);
-        const isAvailable = newSquare[availableSlots[randomPosition]] === null;
-        const index = isAvailable ? randomPosition : availableSlots.length - 1;
-        console.log('available slots', availableSlots)
-        console.log('available ', isAvailable)
-        console.log('fmmm ', newSquare[0])
-        if(!calculateWinner(newSquare)){
-            assignSpace(availableSlots[index], 'o', newSquare, newHistory )
         }
-    }, [assignSpace , takenSquares]);
+    
+        return { score: bestScore, move: bestMove };
+    }, [])
+    
 
+    const computerChoose = useCallback(function (newSquare, newHistory) {
+
+        const bestMove = minMax(newSquare, 0, true); // Call the Minimax function
+        // console.log(newSquare)
+
+        console.log('the best move', bestMove)
+
+        if (!calculateWinner(newSquare)) {
+            assignSpace(bestMove.move, 'O', newSquare, newHistory);
+        }
+    }, [assignSpace, minMax]);
+    
     useEffect(() => {
 
         const newHistory = history.slice(0, stepNumber + 1)
@@ -100,7 +117,7 @@ function Game(props) {
         if (calculateWinner(newSquare) || newSquare[i]){
             return;
         }
-            assignSpace(i, 'x', newSquare, newHistory )
+            assignSpace(i, 'X', newSquare, newHistory )
             computerChoose(newSquare, newHistory)
 
     }
@@ -138,7 +155,7 @@ function Game(props) {
     }
 
     function handleNewGame() {
-        setHistory([{squares: Array(9).fill(null)}])
+        setHistory([{squares: Array(9).fill('')}])
         setStepNumber(0)
         setWinner(null);
         setXIsNext(winner === 'O');
